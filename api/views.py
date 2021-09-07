@@ -2,21 +2,30 @@ from django.contrib.auth import get_user_model
 from django.shortcuts import render
 from rest_framework import viewsets, status
 from rest_framework.authentication import TokenAuthentication
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated,AllowAny
 from rest_framework.response import Response
 from rest_framework.decorators import action
 
 from .models import Movie, Rating
-from .serializers import MovieSerializer, RatingSerializer
+from .serializers import MovieSerializer, RatingSerializer, UserSerializer
 
 User = get_user_model()
 
 # Create your views here.
+
+
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+
+
 class MovieViewSet(viewsets.ModelViewSet):
     queryset = Movie.objects.all()
     serializer_class = MovieSerializer
     authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [AllowAny] # TUTTI VEDONO E SCRIVONO
+    permission_classes = [IsAuthenticated]  # TUTTI VEDONO E SCRIVONO
 
     #custom method for let users rating the movie via API
     # detatil=True vuole dire che funziona sul SINGOLO movie non sulla lista di tutit i movie
@@ -60,8 +69,21 @@ class MovieViewSet(viewsets.ModelViewSet):
             response = {'message': "You need to provide stars"}
             return Response(response, status=status.HTTP_400_BAD_REQUEST)
 
+
+
+
+
 class RatingViewSet(viewsets.ModelViewSet):
     queryset = Rating.objects.all()
     serializer_class = RatingSerializer
     authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated] # SOLO GLI AUTENTICATI METTONO I VOTI
+
+    # BLOCCO PERCHé LO SI FA SOLO DALL'API MOVIE
+    def update(self, request, *args, **kwargs):
+        response = {'message': "You cannot update rating like that"}
+        return Response(response, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def create(self, request, *args, **kwargs):
+        response = {'message': "You cannot create rating like that"}
+        return Response(response, status=status.HTTP_405_METHOD_NOT_ALLOWED)
