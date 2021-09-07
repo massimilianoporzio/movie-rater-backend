@@ -54,6 +54,9 @@ INSTALLED_APPS = [
 
     #Third party apps
     'rest_framework',
+    'rest_framework.authtoken', # serve per login con token
+    "django_extensions", # per runserver_plus (https)
+
     #My apps
     'api.apps.ApiConfig',
 ]
