@@ -25,8 +25,12 @@ class MovieViewSet(viewsets.ModelViewSet):
 
             movie = Movie.objects.get(pk=pk)
 
-            user = User.objects.get(id=1) # per ora è fisso poi lo prenderò dalla request
-            print(user.username)
+            # user = User.objects.get(id=1) # per ora è fisso poi lo prenderò dalla request
+            user = request.user
+            print('user is: ', user)
+            if(user.is_anonymous):
+                response = {'message': "User MUST have been authenticated!"}
+                return Response(response, status=status.HTTP_403_FORBIDDEN)
             try:
                 stars = int(stars)
                 if stars > 5 or stars < 1:
